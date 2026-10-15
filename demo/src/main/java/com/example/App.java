@@ -1,5 +1,6 @@
 package com.example;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -9,20 +10,53 @@ import java.util.Scanner;
  */
 public class App {
 
-    static int digito=0;
+    public static int digito=0;
 
-    static void setDigito(){
+    public static void setDigito(){
         App.digito++;
     }
 
-    static int getDigito(){
+    public static int getDigito(){
         return App.digito;
     }
 
-    static Funcionario cadastrarFuncionario(Scanner scanner){
-        System.out.println("Digite o nome do funcionário: ");
-        String nome = scanner.nextLine();
-        Funcionario novofuFuncionario= new Funcionario(nome, App.getDigito());
+    public static void cadastrarFuncionario(Scanner scanner){
+        
+        Funcionario novoFuncionario = null;
+        ArrayList<TipoFuncionario> lista = new ArrayList<>();
+        TipoFuncionario tipo = TipoFuncionario.ANALISTA;
+        
+
+        do{
+            System.out.println("Digite o nome do funcionário: ");
+            String nome = scanner.nextLine();
+            
+            System.out.println("Digite o tipo de funcionário que deseja cadastrar:");
+            for(TipoFuncionario item: TipoFuncionario.geTipoFuncionarios()){
+                System.out.println(item.getCodTipo()+" - "+item+" - "+item.getDescricao());
+            }
+            int tipo=Integer.parseInt(scanner.nextLine());
+            try {
+                TipoFuncionario tipoFuncionario=TipoFuncionario.consultaTipoPorCodigo(tipo);
+                switch (tipoFuncionario) {
+                    case ESTAGIARIO:
+                        
+                        break;
+                    case TipoFuncionario.
+                
+                    default:
+                        break;
+                }
+            } catch (IllegalArgumentException e) {
+                // TODO: handle exception
+            }
+
+        }while(novoFuncionario==null);
+        
+
+
+        
+        //Funcionario novofuFuncionario= new Funcionario(nome, App.getDigito());
 
 
     }
@@ -46,10 +80,12 @@ public class App {
             
             switch (opcao) {
                 case 1:
-                    
+                    cadastrarFuncionario(scanner);
                     break;
             
                 default:
+                    System.out.println("Programa finalizado pelo usuário");
+                    continuar=false;
                     break;
             }
 

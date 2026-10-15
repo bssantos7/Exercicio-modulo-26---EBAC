@@ -38,10 +38,4 @@ public enum TipoFuncionario {
     public static TipoFuncionario[] geTipoFuncionarios(){
         return TipoFuncionario.values();
     }
-
- 
-
-
-
-
 }
