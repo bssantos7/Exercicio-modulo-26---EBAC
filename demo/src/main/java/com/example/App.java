@@ -2,6 +2,7 @@ package com.example;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IllegalFormatException;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
@@ -33,8 +34,33 @@ public class App {
         }
     }
 
+    public static int continuarOperacao(Scanner scanner){
+        boolean repetir = true;
+        int continuar=0;
+        do{
+            System.out.println("Deseja continuar a operação? Digite:");
+            System.out.println("1 - continuar");
+            System.out.println("0 - Finalizar");
+            try {
+                continuar=Integer.parseInt(scanner.nextLine());
+                if(continuar==0 || continuar==1){
+                    repetir=false;
+                }else{
+                    repetir=true;
+                }
+            }catch(NumberFormatException e){
+                //number format extends ilegal arguiment. é mais específico e só funciona se vier primeiro
+                System.out.println("O valor digitado precisa ser um número");
+            }catch (IllegalArgumentException e) {
+                System.out.println("Número invalido! O valor precisa ser 1 ou 0");
+            }
+        }while(repetir==true);
+        return continuar;
+    }
+
     public static Funcionario cadastrarFuncionario(Scanner scanner){
         Funcionario novoFuncionario = null;
+        int continuar=1;
         do{
             System.out.println("Escolha o cargo do funcionario");
             for(TipoFuncionario item:TipoFuncionario.geTipoFuncionarios()){
@@ -45,16 +71,26 @@ public class App {
             try {
                 codTipo=Integer.parseInt(scanner.nextLine().trim());
             } catch (NumberFormatException e) {
-                System.out.println("o valor precisa ser um número. tente novamente");
-                continue;
+                System.out.println("o valor precisa ser um número.");
+                continuar=continuarOperacao(scanner); //1 para sim e 0 para não. este método já fez o tratamenot da exceção dentro e não precisa fazer try-catch aqui
+                if(continuar==1){
+                    continue;
+                }else{
+                    break;
+                }
             }
 
             TipoFuncionario tipoFuncionario;
             try {
                 tipoFuncionario=TipoFuncionario.consultaTipoPorCodigo(codTipo);
             } catch (IllegalArgumentException e) {
-                System.out.println("Numero invalido. tente novamente");
-                continue;
+                System.out.println("Numero invalido. Escolha uma das opções disponíveis");
+                continuar=continuarOperacao(scanner);
+                if(continuar==1){
+                    continue;
+                }else{
+                    break;
+                }
             }
 
             String nome;
@@ -64,7 +100,12 @@ public class App {
                 validarNome(nome);
             } catch (StringVaziaException e) {
                 System.out.println(e.getMessage());
-                continue;
+                continuar=continuarOperacao(scanner);
+                if(continuar==1){
+                    continue;
+                }else{
+                    break;
+                }
             }
 
             switch (tipoFuncionario) {
@@ -102,9 +143,107 @@ public class App {
         return novoFuncionario;
     }
 
-    public static void incluirNovoFuncionario(){
+    public static void lsitarEquipe(){
+        int posicao=1;
+        for(Map.Entry<String, Funcionario> dados:equipe.entrySet()){
+            String chave = dados.getKey();
+            Funcionario item=dados.getValue();
+            System.out.println(posicao+" - "+item.toString());
+            posicao++;
+        }
+    }
+
+    public static String arrayEquipe(int escolha){
+        String[] lista = new String[equipe.size()];
+        int i=0;
+        for(Map.Entry<String, Funcionario> dados:equipe.entrySet()){
+            String chave = dados.getKey();
+            lista[i]=chave;
+            i++;
+        }
+        for(int x=0;x<lista.length;x++){
+            System.out.println(x+" - "+lista[x]);
+        }
+        return lista[escolha];
+    }
+
+    
+
+    
+    public static void incluirFuncionarioNaEquipe(Funcionario funcioarioAtual){
+        equipe.put(funcioarioAtual.getCodigo(), funcioarioAtual);
 
     }
+
+
+    public static void removerFuncionario(Scanner scanner){
+        int continuar=1;
+        do{
+            System.out.println("Selecione um método para exclusão:");
+            System.out.println("1 - para escolher um funcionário na lista");
+            System.out.println("2 - Para excluir um funcionário através do seu código");
+            System.out.println("0 - voltar ao menu anterior");
+            try {
+                int metodo = Integer.parseInt(scanner.nextLine());
+                if(metodo==1){
+                    removerFuncionarionaLista(scanner);
+                }else if(metodo==2){
+                    System.out.println("Digite o código do funcionario: ");
+                    String key=scanner.nextLine();
+                    removerFuncionarioPorKey(key, scanner);
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("Numero invalido");
+                continuar=continuarOperacao(scanner);
+            }
+        }while(continuar==1);
+        
+    }
+    
+    public static void removerFuncionarioPorKey(String key, Scanner scanner){
+        if(!equipe.containsKey(key)){
+            System.out.println("O código do funcionário esta errado ou já foi excluído do sistema");
+        }else{
+            Funcionario funcionarioExcluir = equipe.get(key);
+            System.out.println("O seguinte funcioário será exclido do sistema: "+funcionarioExcluir.toString());
+            int continuar=continuarOperacao(scanner);
+            if(continuar==1){
+                equipe.remove(key);
+                System.out.println("Funcionário excluido com sucesso;");
+            }
+        }
+    }
+    
+    public static void  removerFuncionarionaLista(Scanner scanner){
+        int continuar=1;
+        System.out.println("Selecione o funcionário que deseja excluir: ");
+        lsitarEquipe();
+        do{
+            try {
+                int escolha= Integer.parseInt(scanner.nextLine())-1;
+                if(escolha<0){
+                    System.out.println("o numero deve ser maior ou igual a zero");
+                    continuar=continuarOperacao(scanner);
+                }else{
+                    String key=arrayEquipe(escolha);
+                    removerFuncionarioPorKey(key, scanner);
+                }
+            } catch (NumberFormatException e) {
+                //trata a exceção quando não é um numero
+                System.out.println("O valor digitado deve ser um número");
+                continuar=continuarOperacao(scanner);
+            }catch(IllegalFormatException e){
+                //trata a exceção quando não é uma opção válida na lista
+                System.out.println("Numero invalido. escolha um número na lista");
+                continuar=continuarOperacao(scanner);
+            }
+        }while(continuar==1);
+        
+        
+    }
+
+    
+
     
 
     public static void main( String[] args ){
@@ -137,19 +276,22 @@ public class App {
             switch (opcao) {
                 case 1:
                     funcionarioAtual=cadastrarFuncionario(scanner);
-                    equipe.put(funcionarioAtual.getCodigo(), funcionarioAtual);
-                    System.out.println("Novo funcionário incluido com sucesso");
-                    break;
+                    if(funcionarioAtual==null){
+                        System.out.println("Operacao cancelada. ");
+                        break;
+                    }else{
+                        incluirFuncionarioNaEquipe(funcionarioAtual);
+                        System.out.println("Novo funcionário incluido com sucesso");
+                        break;
+                    }    
 
                 case 2:
-                    
+                    removerFuncionario(scanner);
+                    break;
 
                 case 3:
-                    for(Map.Entry<String, Funcionario> dados:equipe.entrySet()){
-                        String chave = dados.getKey();
-                        Funcionario item=dados.getValue();
-                        System.out.println(item.toString());
-                    }
+                   lsitarEquipe();
+                   break;
             
                 default:
                     System.out.println("Opção invalida. tente novamente");
