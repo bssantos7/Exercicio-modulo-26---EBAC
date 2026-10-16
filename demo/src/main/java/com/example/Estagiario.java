@@ -2,8 +2,8 @@ package com.example;
 
 public class Estagiario extends Funcionario{
 
-    public Estagiario(String nome, int numero) {
-        super(nome, numero);
+    public Estagiario(String nome, int digito, TipoFuncionario tipoFuncionario) {
+        super(nome, digito, tipoFuncionario);
     }
 
     @Override

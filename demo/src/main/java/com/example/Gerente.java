@@ -2,8 +2,8 @@ package com.example;
 
 public final class Gerente extends Funcionario{
     
-    public Gerente(String nome, int numero){
-        super(nome, numero);
+    public Gerente(String nome, int digito, TipoFuncionario tipoFuncionario){
+        super(nome, digito, tipoFuncionario);
     }
 
     @Override
