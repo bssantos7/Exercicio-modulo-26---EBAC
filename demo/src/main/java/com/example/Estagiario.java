@@ -8,7 +8,7 @@ public class Estagiario extends Funcionario{
 
     @Override
     public void registrarEntrada() {
-        // TODO Auto-generated method stub
+        System.out.println("aos Estagiários não é permitido registrar ponto!");
         
     }
 

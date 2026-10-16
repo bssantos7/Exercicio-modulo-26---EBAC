@@ -187,10 +187,18 @@ public class App {
                 int metodo = Integer.parseInt(scanner.nextLine());
                 if(metodo==1){
                     removerFuncionarionaLista(scanner);
+                    lsitarEquipe();
+                    continuar=1;
                 }else if(metodo==2){
                     System.out.println("Digite o código do funcionario: ");
                     String key=scanner.nextLine();
                     removerFuncionarioPorKey(key, scanner);
+                    lsitarEquipe();
+                    continuar=1;
+                }
+                else if(metodo==0){
+                    System.out.println("Cancelado pelo usuário");
+                    continuar=0;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("Numero invalido");
@@ -236,12 +244,47 @@ public class App {
                 //trata a exceção quando não é uma opção válida na lista
                 System.out.println("Numero invalido. escolha um número na lista");
                 continuar=continuarOperacao(scanner);
+            }catch(ArrayIndexOutOfBoundsException e){
+                System.out.println("numero invalido. O array não possui essa posição");
+                continuar=continuarOperacao(scanner);
             }
         }while(continuar==1);
-        
-        
     }
 
+    public static Funcionario selecionarFuncionario(Scanner scanner){
+        int continuar=1;
+        Funcionario funcionarioAual=null;
+        
+        do{
+            System.out.println("Selecione o funcionário a partir do numero da lista abaixo: ");
+            lsitarEquipe();
+            try {
+                int escolha=Integer.parseInt(scanner.nextLine())-1;
+                if(escolha<0){
+                    System.out.println("numero invalido. o valor digitado deve ser superior a zero 0");
+                    continuar=1;
+                }else{
+                    String key = arrayEquipe(escolha);
+                    funcionarioAual=equipe.get(key);
+                    System.out.println("Funcionario selecionado: "+funcionarioAual.toString());
+                }
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println("Valor inválido. O array não possui esta posição");
+                continuar=continuarOperacao(scanner);
+            }catch(NumberFormatException e){
+                System.out.println("O valor digitado deve ser um númeor.");
+                continuar=continuarOperacao(scanner);
+            }catch(IllegalArgumentException e){
+                System.out.println("Valor invalido. escolha uma das opções na lista");
+                continuar=continuarOperacao(scanner);
+            }
+        }while(continuar==1);
+        return funcionarioAual;
+    }
+
+    public static void registrarPonto(Scanner scanner){
+        
+    }
     
 
     
@@ -274,6 +317,12 @@ public class App {
             }
             
             switch (opcao) {
+                
+                case 0:
+                    System.out.println("Programa finalizado pelo usuário");
+                    continuar=false;
+                    break;
+                
                 case 1:
                     funcionarioAtual=cadastrarFuncionario(scanner);
                     if(funcionarioAtual==null){
@@ -292,6 +341,10 @@ public class App {
                 case 3:
                    lsitarEquipe();
                    break;
+
+                case 4:
+                    //registrar ponto funcionario
+                    break;
             
                 default:
                     System.out.println("Opção invalida. tente novamente");
