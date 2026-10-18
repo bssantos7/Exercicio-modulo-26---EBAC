@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -25,7 +26,7 @@ public abstract class Funcionario implements BaterPonto{
 
     public String getNome() {
         return nome;
-        folhaPonto.s
+        
     }
 
     @Override
@@ -34,25 +35,68 @@ public abstract class Funcionario implements BaterPonto{
     }
 
     public void adicionarRegistroNaFolha(RegistroPonto novPonto){
-        this.folhaPonto.put(novPonto.getCodigo(), novPonto);
+        if(this.folhaPonto.containsKey(novPonto.getCodigo())){
+            this.folhaPonto.put(novPonto.getCodigo(), novPonto);
+            System.out.println("Registro de Ponto atualizado com sucesso!");    
+        }else{
+            this.folhaPonto.put(novPonto.getCodigo(), novPonto);
+            System.out.println("Registro de ponto criado com sucesso!");
+        }    
+    }
+
+    public void listarRegistroPonto(){
+        int posicao=1;
+        if(this.folhaPonto.isEmpty()){
+            System.out.println("Não há registro de pontos para este funcionário!");
+        }else{
+            for(Map.Entry<String, RegistroPonto> dados: this.folhaPonto.entrySet()){
+                System.out.println(posicao+" - "+dados.toString());
+                posicao++;
+            }
+        }
     }
     
+    public RegistroPonto selecionarRegistroPonto(String key){
+        RegistroPonto registroAtual=null;
+        if(this.folhaPonto.containsKey(key)){
+             registroAtual = this.folhaPonto.get(key);
+        }else{
+            System.out.println("O código"+key+" do registro não consta na folha de ponto deste funcionário");
+        }
+        return registroAtual;
+    }
+
+    public RegistroPonto selecionarRegistroPonto() throws RegistroIncompletoException{
+        
+        for(Map.Entry<String, RegistroPonto> dados: this.folhaPonto.entrySet()){
+            String codigo=dados.getKey();
+            RegistroPonto registro=dados.getValue();
+            if (!registro.isCompleto()) {
+                return registro;
+            }
+        }
+        throw new RegistroIncompletoException("Erro no construtor e manipulação dos registros. não há registros incompletos na folha de ponto ");
+    }
+
+
+    
+    //transferir método RegistarPonto para interface e implemnetar
+    @Override 
     public void registrarPonto(Scanner scanner){
         boolean formatoOk=false;
         String inputDia=null;
         String inputHora=null;
-        if(folhaPonto.isEmpty()){
+        
+        if(this.folhaPonto.isEmpty()){
             while (formatoOk==false) {
                 System.out.println("A folha de ponto do funcionário esta vazia. este será o primeiro registro");
                 System.out.println("Digite a data do registro no formato DD/MM/AAAA");
                 inputDia = scanner.nextLine().trim();
                 System.out.println("Digite a hora no formato HH:MM");
                 inputHora=scanner.nextLine().trim();
-                if(RegistroPonto.confereFormatoDia(inputDia)==true&& RegistroPonto.confereFormatoHora(inputHora)==true){
-                    formatoOk=true;
-                }else{
-                    System.out.println("Formado do dia e/ou hora está inválido. tente novamente");
-                    formatoOk=false;
+                formatoOk=RegistroPonto.confereFormato(inputDia, inputHora);
+                if(formatoOk=false){
+                    System.out.println("Formato da data e hora invalido. tente novamente");
                 }
             }
 

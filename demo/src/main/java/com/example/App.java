@@ -283,7 +283,11 @@ public class App {
     }
 
     public static void registrarPonto(Scanner scanner){
-        
+        Funcionario funcionarioAtual = selecionarFuncionario(scanner);
+        funcionarioAtual.
+        if(funcionarioAtual instanceof Estagiario || funcionarioAtual instanceof Gerente){
+
+        }
     }
     
 
