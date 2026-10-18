@@ -1,11 +1,9 @@
 package com.example;
 
 import java.time.DateTimeException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.format.ResolverStyle;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
@@ -90,17 +88,18 @@ public abstract class Funcionario implements BaterPonto{
         String inputHora=null;
         
         if(this.folhaPonto.isEmpty()){
-            while (formatoOk==false) {
-                System.out.println("A folha de ponto do funcionário esta vazia. este será o primeiro registro");
+            System.out.println("A folha de ponto do funcionário esta vazia. este será o primeiro registro");
+            
+            do{
                 System.out.println("Digite a data do registro no formato DD/MM/AAAA");
                 inputDia = scanner.nextLine().trim();
                 System.out.println("Digite a hora no formato HH:MM");
                 inputHora=scanner.nextLine().trim();
                 formatoOk=RegistroPonto.confereFormato(inputDia, inputHora);
-                if(formatoOk=false){
+                if(formatoOk==false){
                     System.out.println("Formato da data e hora invalido. tente novamente");
                 }
-            }
+            }while(formatoOk==false);
 
             RegistroPonto novoPonto = new RegistroPonto(inputDia, inputHora, this.getCodigo());
             this.adicionarRegistroNaFolha(novoPonto);
@@ -112,21 +111,35 @@ public abstract class Funcionario implements BaterPonto{
                 if(registroAtual.getTipoRegistroPonto()==TipoRegistroPonto.SAIDA){
                     registroAtual=this.registrarSaida(registroAtual, scanner);
                     //verifica as exceções e se estiver tudo ok atualiza a folha de ponto
-                    if(registroAtual==null){
-                        throw new OperacaoAbortadaException("Erro ao fazer o registro de ponto: hora saida é <= a hora de entrada ou a hora de saida> 22:00 ou formato hora invalido!");
+                    if(registroAtual.getSaida()==null){
+                       throw new OperacaoAbortadaException("Erro ao fazer o registro de ponto: hora saida é <= a hora de entrada ou a hora de saida> 22:00 ou formato hora invalido!");
                     }else{
-                        this.adicionarRegistroNaFolha(registroAtual);
+                        this.adicionarRegistroNaFolha(registroAtual);//se for novo, cria, se chave já existe, atualiza
+                        
                         System.out.println(registroAtual.toString());
                         RegistroPonto novoRegistroPonto= new RegistroPonto();
                         this.adicionarRegistroNaFolha(novoRegistroPonto);
                     }
                 }else if(registroAtual.getTipoRegistroPonto()==TipoRegistroPonto.ENTRADA){
-                    registroAtual=this.registrarEntrada(registroAtual, scanner);
-                    if(registroAtual==null){
-                        throw new OperacaoAbortadaException("Erro ao fazer o registro de ponto: hora de entrada anterior à 06 da manha.")
+                    RegistroPonto comparativo = new RegistroPonto();
+                    RegistroPonto registroPendente = registroAtual;
+                    System.out.println("comparativo entrada");
+                    System.out.println("padrão:"+comparativo.toString());
+                    System.out.println("atual: "+registroAtual.toString());
+                    registroAtual=this.registrarEntrada(registroAtual, scanner, this.getCodigo());
+                    System.out.println("comparativo saida");
+                    System.out.println("padrão:"+comparativo.toString());
+                    System.out.println("atual: "+registroAtual.toString());
+                    if(registroAtual.getCodigo()==null){
+                        throw new OperacaoAbortadaException("Erro ao fazer o registro de ponto: hora de entrada anterior à 06 da manha ou formato data/hora invalido.");
+                    }else if(this.folhaPonto.containsKey(registroAtual.getCodigo())){
+                        throw new OperacaoAbortadaException("Já existe um registro de ponto para a data "+registroAtual.getDia());
                     }else{
+                        removerRegistroPendente(registroPendente);
                         this.adicionarRegistroNaFolha(registroAtual);
+                        System.out.println("Registro adicionado com sucesso!");
                         System.out.println(registroAtual.toString());
+                        this.listarRegistroPonto();
                     }
                 }
             } catch (RegistroIncompletoException e) {
@@ -141,8 +154,14 @@ public abstract class Funcionario implements BaterPonto{
         }
     }
 
-    
-
-
-
+    private void removerRegistroPendente(RegistroPonto registroPendente){
+        Iterator<Map.Entry<String, RegistroPonto>> registros = this.folhaPonto.entrySet().iterator();
+        while(registros.hasNext()){
+            if(registros.next().getValue() == registroPendente){
+                registros.remove();
+                return;
+            }
+        }
+        throw new IllegalStateException("O registro de ponto pendente não foi encontrado na folha.");
+    }
 }

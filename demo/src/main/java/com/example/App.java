@@ -1,10 +1,9 @@
 package com.example;
 
-import java.util.ArrayList;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.IllegalFormatException;
 import java.util.Map;
-import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -146,7 +145,6 @@ public class App {
     public static void lsitarEquipe(){
         int posicao=1;
         for(Map.Entry<String, Funcionario> dados:equipe.entrySet()){
-            String chave = dados.getKey();
             Funcionario item=dados.getValue();
             System.out.println(posicao+" - "+item.toString());
             posicao++;
@@ -267,12 +265,13 @@ public class App {
                     String key = arrayEquipe(escolha);
                     funcionarioAual=equipe.get(key);
                     System.out.println("Funcionario selecionado: "+funcionarioAual.toString());
+                    continuar=0;
                 }
             } catch (IndexOutOfBoundsException e) {
                 System.out.println("Valor inválido. O array não possui esta posição");
                 continuar=continuarOperacao(scanner);
             }catch(NumberFormatException e){
-                System.out.println("O valor digitado deve ser um númeor.");
+                System.out.println("O valor digitado deve ser um número.");
                 continuar=continuarOperacao(scanner);
             }catch(IllegalArgumentException e){
                 System.out.println("Valor invalido. escolha uma das opções na lista");
@@ -280,6 +279,36 @@ public class App {
             }
         }while(continuar==1);
         return funcionarioAual;
+    }
+
+
+    public static void sistemaPonto(Scanner scanner){
+        int continuar=1;
+
+        do{
+            try {
+                Funcionario funcionarioAtual=selecionarFuncionario(scanner);
+                if(funcionarioAtual==null){
+                    continuar=continuarOperacao(scanner);
+                }else{
+                    funcionarioAtual.registrarPonto(scanner);
+                    continuar=0;
+                }
+                
+            } catch(OperacaoAbortadaException e){
+                System.out.println(e.getMessage());
+                continuar=continuarOperacao(scanner);
+            }catch(RegistroIncompletoException e){
+                System.out.println(e.getMessage());
+                continuar=continuarOperacao(scanner);
+            }catch(DateTimeParseException e){
+                System.out.println(e.getMessage());
+                continuar=continuarOperacao(scanner);
+            }catch(ArithmeticException e){
+                System.out.println(e.getMessage());
+                continuar=continuarOperacao(scanner);
+            }
+        }while(continuar==1);
     }
     
 
@@ -333,11 +362,14 @@ public class App {
                     break;
 
                 case 3:
-                   lsitarEquipe();
+                   funcionarioAtual=selecionarFuncionario(scanner);
+                   if(funcionarioAtual!=null){
+                        funcionarioAtual.listarRegistroPonto();
+                   }
                    break;
 
                 case 4:
-                    //registrar ponto funcionario
+                    sistemaPonto(scanner);
                     break;
             
                 default:

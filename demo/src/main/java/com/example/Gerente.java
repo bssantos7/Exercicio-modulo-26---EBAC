@@ -8,27 +8,24 @@ public final class Gerente extends Funcionario{
         super(nome, digito, tipoFuncionario);
     }
 
-    @Override 
-     public void registrarPonto(Scanner scanner){
-        System.out.println("O cargo de gerente não é permitido registrar ponto no sistema de ponto");
-     }
-
-    @Override
-    public RegistroPonto registrarEntrada(RegistroPonto registroAtual) {
-        // gerente não bate ponto
-        System.out.println("O cargo de gerente não é permitido registrar entrada no sistema de ponto");
-        return null;
-        
+   @Override 
+    public void registrarPonto(Scanner scanner){
+        System.out.println("aos Gerentes não é permitido registrar ponto!");
     }
 
+
     @Override
-    public RegistroPonto registrarSaida(RegistroPonto registroAtual) {
-        // gerente não bate ponto
-        System.out.println("O cargo de gerente não é permitido registrar saida no sistema de ponto");
+    public RegistroPonto registrarEntrada(RegistroPonto registroAtual, Scanner scanner, String codFuncionario) {
+        System.out.println("Aos Gerentes não é permitido bater ponto!");
         return null;
-        
     }
 
+
+    @Override
+    public RegistroPonto registrarSaida(RegistroPonto registroAtual, Scanner scanner) {
+        System.out.println("Aos Gerentes não é permitido bater ponto!");
+        return null;
+    }
     
 
 }

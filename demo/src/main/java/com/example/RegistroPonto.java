@@ -14,7 +14,7 @@ public class RegistroPonto {
     private static DateTimeFormatter formatoData =DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
     private static DateTimeFormatter formatoHora =DateTimeFormatter.ofPattern("HH:mm").withResolverStyle(ResolverStyle.STRICT);
 
-    private final String codigo;
+    private String codigo;
     private LocalDate dia;
     private LocalTime entrada;
     private LocalTime saida;
@@ -25,7 +25,7 @@ public class RegistroPonto {
 
     public RegistroPonto(String dia, String hora, String key){
         // quando cria o primeiro registro, ja passa a data e hora de entrada e set tipoRegistroPonto como saida
-        this.codigo=key+"/"+dia+"-"+RegistroPonto.getDigito();
+        this.codigo=key+"-"+dia;
         this.dia=LocalDate.parse(dia,formatoData);
         this.entrada=LocalTime.parse(hora,formatoHora);
         this.saida=null;
@@ -47,6 +47,43 @@ public class RegistroPonto {
         this.observacao="não há observações sobre este registro";
     }
 
+    public void atualizaRegistroEntrada(String dia, String hora, String key, String mensagem){
+        
+        this.codigo=key+"-"+dia;
+        this.dia=LocalDate.parse(dia,formatoData);
+        this.entrada=LocalTime.parse(hora,formatoHora);
+        this.saida=null;
+        this.tipoAtual=TipoRegistroPonto.SAIDA;
+        this.completo=false;
+        if(mensagem.isEmpty()||mensagem.equals("")){
+            this.observacao="não há observações sobre este registro";
+        }else{
+            this.observacao=mensagem;
+        }
+        RegistroPonto.setDigito();
+
+    }
+
+    public RegistroPonto atualizaRegistroEntrada2(String dia, String hora, String key, String mensagem){
+        
+        //RegistroPonto registroAtualizado = new RegistroPonto();
+        this.codigo=key+"-"+dia;
+        this.dia=LocalDate.parse(dia,formatoData);
+        this.entrada=LocalTime.parse(hora,formatoHora);
+        this.saida=null;
+        this.tipoAtual=TipoRegistroPonto.SAIDA;
+        this.completo=false;
+        if(mensagem.isEmpty()||mensagem.equals("")){
+            this.observacao="não há observações sobre este registro";
+        }else{
+            this.observacao=mensagem;
+        }
+        RegistroPonto.setDigito();
+
+        return this;
+
+    }
+
 
     public static int getDigito(){
         return RegistroPonto.digito;
@@ -55,7 +92,17 @@ public class RegistroPonto {
     public static void setDigito(){
         RegistroPonto.digito++;
     }
+
     
+    
+    public static DateTimeFormatter getFormatoData() {
+        return formatoData;
+    }
+
+    public static DateTimeFormatter getFormatoHora() {
+        return formatoHora;
+    }
+
     public static boolean confereFormatoDia(String dia)throws DateTimeParseException{
         
         try {
@@ -77,8 +124,13 @@ public class RegistroPonto {
 
     public static boolean confereFormato(String dia, String hora){
         boolean resposta = false;
+        LocalDate diaD=null;
+        LocalTime horaH=null;
         try {
             if(confereFormatoDia(dia)==true&&confereFormatoHora(hora)==true)
+            diaD=LocalDate.parse(dia,RegistroPonto.getFormatoData());
+            horaH=LocalTime.parse(hora,RegistroPonto.getFormatoHora());
+            System.out.println("Dia:"+diaD+" hora:"+horaH);
             resposta=true; 
         } catch (DateTimeParseException e) {
             System.out.println(e.getMessage());
@@ -155,10 +207,12 @@ public class RegistroPonto {
         return observacao;
     }
 
+ 
+
     @Override
     public String toString() {
         return "RegistroPonto [codigo=" + codigo + ", dia=" + dia + ", entrada=" + entrada + ", saida=" + saida
-                + ", completo=" + completo + ", observacao=" + observacao + "]";
+                + ", completo=" + completo + ", tipoAtual=" + tipoAtual + ", observacao=" + observacao + "]";
     }
 
     @Override
