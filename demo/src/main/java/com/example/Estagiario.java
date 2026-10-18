@@ -15,14 +15,16 @@ public class Estagiario extends Funcionario{
     }
 
     @Override
-    public void registrarEntrada() {
+    public RegistroPonto registrarEntrada(RegistroPonto registroAtual) {
         System.out.println("aos Estagiários não é permitido registrar ponto!");
+        return null;
         
     }
 
     @Override
-    public void registrarSaida() {
+    public RegistroPonto registrarSaida(RegistroPonto registroAtual) {
         System.out.println("aos Estagiários não é permitido registrar ponto!");
+        return null;
         
     }
 

@@ -1,7 +1,9 @@
 package com.example;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +73,7 @@ public abstract class Funcionario implements BaterPonto{
         for(Map.Entry<String, RegistroPonto> dados: this.folhaPonto.entrySet()){
             String codigo=dados.getKey();
             RegistroPonto registro=dados.getValue();
-            if (!registro.isCompleto()) {
+            if (!registro.isCompleto()) { // no hashmap apenas o registro atual deve ter status false. todos os outros são true
                 return registro;
             }
         }
@@ -82,7 +84,7 @@ public abstract class Funcionario implements BaterPonto{
     
     //transferir método RegistarPonto para interface e implemnetar
     @Override 
-    public void registrarPonto(Scanner scanner){
+    public void registrarPonto(Scanner scanner) throws OperacaoAbortadaException, RegistroIncompletoException,DateTimeParseException,ArithmeticException {
         boolean formatoOk=false;
         String inputDia=null;
         String inputHora=null;
@@ -102,8 +104,40 @@ public abstract class Funcionario implements BaterPonto{
 
             RegistroPonto novoPonto = new RegistroPonto(inputDia, inputHora, this.getCodigo());
             this.adicionarRegistroNaFolha(novoPonto);
-        }else{
-            //faz se a folha de ponto não estiver vazia
+        }else{ //folha de ponto não esta vazia
+            try {
+                RegistroPonto registroAtual=selecionarRegistroPonto(); // seleciona o registro que não está completo (false)
+                System.out.println("Registro de Ponto Atual: "+registroAtual.toString());
+                //cadastrar ponto de saída
+                if(registroAtual.getTipoRegistroPonto()==TipoRegistroPonto.SAIDA){
+                    registroAtual=this.registrarSaida(registroAtual, scanner);
+                    //verifica as exceções e se estiver tudo ok atualiza a folha de ponto
+                    if(registroAtual==null){
+                        throw new OperacaoAbortadaException("Erro ao fazer o registro de ponto: hora saida é <= a hora de entrada ou a hora de saida> 22:00 ou formato hora invalido!");
+                    }else{
+                        this.adicionarRegistroNaFolha(registroAtual);
+                        System.out.println(registroAtual.toString());
+                        RegistroPonto novoRegistroPonto= new RegistroPonto();
+                        this.adicionarRegistroNaFolha(novoRegistroPonto);
+                    }
+                }else if(registroAtual.getTipoRegistroPonto()==TipoRegistroPonto.ENTRADA){
+                    registroAtual=this.registrarEntrada(registroAtual, scanner);
+                    if(registroAtual==null){
+                        throw new OperacaoAbortadaException("Erro ao fazer o registro de ponto: hora de entrada anterior à 06 da manha.")
+                    }else{
+                        this.adicionarRegistroNaFolha(registroAtual);
+                        System.out.println(registroAtual.toString());
+                    }
+                }
+            } catch (RegistroIncompletoException e) {
+                throw new RegistroIncompletoException(e.getMessage());
+            }catch(DateTimeParseException e){
+                throw new DateTimeParseException(e.getMessage(),e.getParsedString(),e.getErrorIndex(),e);
+            }catch(DateTimeException e){
+                throw new DateTimeException(e.getMessage());
+            }catch(ArithmeticException e){
+                throw new ArithmeticException(e.getMessage());
+            }
         }
     }
 

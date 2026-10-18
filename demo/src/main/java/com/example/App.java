@@ -281,16 +281,6 @@ public class App {
         }while(continuar==1);
         return funcionarioAual;
     }
-
-    public static void registrarPonto(Scanner scanner){
-        Funcionario funcionarioAtual = selecionarFuncionario(scanner);
-        funcionarioAtual.
-        if(funcionarioAtual instanceof Estagiario || funcionarioAtual instanceof Gerente){
-
-        }
-    }
-    
-
     
 
     public static void main( String[] args ){

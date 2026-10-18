@@ -24,6 +24,7 @@ public class RegistroPonto {
 
 
     public RegistroPonto(String dia, String hora, String key){
+        // quando cria o primeiro registro, ja passa a data e hora de entrada e set tipoRegistroPonto como saida
         this.codigo=key+"/"+dia+"-"+RegistroPonto.getDigito();
         this.dia=LocalDate.parse(dia,formatoData);
         this.entrada=LocalTime.parse(hora,formatoHora);
@@ -35,6 +36,18 @@ public class RegistroPonto {
         
     }
 
+    public RegistroPonto(){
+        // cria um novo registro autmoaticamente após completar o registro anterior para ser preenchido posterioemente começando pela entrada
+        this.codigo=null;
+        this.dia=null;
+        this.entrada=null;
+        this.saida=null;
+        this.tipoAtual=TipoRegistroPonto.ENTRADA;
+        this.completo=false;
+        this.observacao="não há observações sobre este registro";
+    }
+
+
     public static int getDigito(){
         return RegistroPonto.digito;
     }
@@ -43,31 +56,45 @@ public class RegistroPonto {
         RegistroPonto.digito++;
     }
     
-    private static boolean confereFormatoDia(String dia){
+    public static boolean confereFormatoDia(String dia)throws DateTimeParseException{
         
         try {
             LocalDate diaD = LocalDate.parse(dia, formatoData);
             return true;
         } catch (DateTimeParseException e) {
-            return false;
+           throw new DateTimeParseException("o dia digitado não está no formato correto HH:MM", e.getParsedString(),e.getErrorIndex(),e);
         }
     }
 
-    private static boolean confereFormatoHora(String hora){
+    public static boolean confereFormatoHora(String hora) throws DateTimeParseException{
         try {
             LocalTime horaH = LocalTime.parse(hora, formatoHora);
             return true;
         } catch (DateTimeParseException e) {
-            return false;
+            throw new DateTimeParseException("a hora digitada não está no formato correto HH:MM", e.getParsedString(),e.getErrorIndex(),e);
         }
     }
 
     public static boolean confereFormato(String dia, String hora){
-        if(confereFormatoDia(dia)==true&&confereFormatoHora(hora)==true){
-            return true;
-        }else{
-            return false;
+        boolean resposta = false;
+        try {
+            if(confereFormatoDia(dia)==true&&confereFormatoHora(hora)==true)
+            resposta=true; 
+        } catch (DateTimeParseException e) {
+            System.out.println(e.getMessage());
+            resposta=false;
         }
+        return resposta;
+    }
+
+    public LocalDate converteData(String data){
+        LocalDate novaData = LocalDate.parse(data, formatoData);
+        return novaData;
+    }
+
+    public LocalTime converteHora(String hora){
+        LocalTime novaHora = LocalTime.parse(hora, formatoHora);
+        return novaHora;
     }
 
 
@@ -97,6 +124,35 @@ public class RegistroPonto {
 
     public void finalizarRegistro(){
         this.completo=true;
+    }
+
+
+    public LocalDate getDia() {
+        return dia;
+    }
+
+    public void setDia(LocalDate dia) {
+        this.dia = dia;
+    }
+
+    public LocalTime getEntrada() {
+        return entrada;
+    }
+
+    public void setEntrada(LocalTime entrada) {
+        this.entrada = entrada;
+    }
+
+    public LocalTime getSaida() {
+        return saida;
+    }
+
+    public void setSaida(LocalTime saida) {
+        this.saida = saida;
+    }
+
+    public String getObservacao() {
+        return observacao;
     }
 
     @Override
